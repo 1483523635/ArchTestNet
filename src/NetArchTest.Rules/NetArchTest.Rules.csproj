@@ -2,17 +2,19 @@
 
   <PropertyGroup>
     <Version>1.0.2</Version>
-    <Authors>Ben Morris</Authors>
+    <Authors>LianQing.Qu</Authors>
     <Product>NetArchTest</Product>
     <Description>A fluent API for .Net Standard that can enforce architectural rules in unit tests.</Description>
     <Copyright>Copyright (c) 2018 Ben Morris</Copyright>
-    <PackageLicenseUrl>https://github.com/BenMorris/NetArchTest/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/BenMorris/NetArchTest</PackageProjectUrl>
-    <PackageIconUrl>https://www.ben-morris.com/wp-content/library/bm-nuget-icon.png</PackageIconUrl>
-    <RepositoryUrl>https://github.com/BenMorris/NetArchTest</RepositoryUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/1483523635/ArchTestNet</PackageProjectUrl>
+    <PackageIconUrl></PackageIconUrl>
+    <RepositoryUrl>https://github.com/1483523635/ArchTestNet</RepositoryUrl>
     <PackageTags>test architecture dependencies archtest</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+    <PackageId>ArchTestNet</PackageId>
+    <PackageVersion>0.2.0</PackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
