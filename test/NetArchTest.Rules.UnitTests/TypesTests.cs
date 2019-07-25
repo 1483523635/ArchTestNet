@@ -54,7 +54,7 @@ namespace NetArchTest.Rules.UnitTests
                 [Fact(DisplayName = "A types collection can be created from a namespace.")]
         public void InNamespaces_TypesReturned()
         {
-            var result = Types.InNamespaces(new List<string>()
+            var result = Types.InNamespaces(new List<string>
             {
                 "NetArchTest.TestStructure.NameMatching.Namespace1",
                 "NetArchTest.TestStructure.NameMatching.Namespace2.Namespace3"

@@ -125,6 +125,11 @@
         }
 
 
+        /// <summary>
+        /// Creates a list of all the types in a particular namespace.
+        /// </summary>
+        /// <param name="names">The namespaces to list types for. This is case insensitive.</param>
+        /// <returns>A list of types that can have predicates and conditions applied to it.</returns>
         public static Types InNamespaces(List<string> names)
         {
             if (names == null || names.Count == 0)

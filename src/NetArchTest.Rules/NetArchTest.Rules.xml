@@ -1197,6 +1197,13 @@
             <param name="name">The namespace to list types for. This is case insensitive.</param>
             <returns>A list of types that can have predicates and conditions applied to it.</returns>
         </member>
+        <member name="M:NetArchTest.Rules.Types.InNamespaces(System.Collections.Generic.List{System.String})">
+            <summary>
+            Creates a list of all the types in a particular namespace.
+            </summary>
+            <param name="names">The namespaces to list types for. This is case insensitive.</param>
+            <returns>A list of types that can have predicates and conditions applied to it.</returns>
+        </member>
         <member name="M:NetArchTest.Rules.Types.FromFile(System.String)">
             <summary>
             Creates a list of all the types in a particular module file.
