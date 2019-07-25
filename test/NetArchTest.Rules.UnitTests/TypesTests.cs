@@ -1,4 +1,6 @@
-﻿namespace NetArchTest.Rules.UnitTests
+﻿using System.Collections.Generic;
+
+namespace NetArchTest.Rules.UnitTests
 {
     using System;
     using System.IO;
@@ -46,6 +48,21 @@
             Assert.Contains<Type>(typeof(ClassA1), result);
             Assert.Contains<Type>(typeof(ClassA2), result);
             Assert.Contains<Type>(typeof(ClassA3), result);
+            Assert.Contains<Type>(typeof(ClassB1), result);
+            Assert.Contains<Type>(typeof(ClassB2), result);
+        }
+                [Fact(DisplayName = "A types collection can be created from a namespace.")]
+        public void InNamespaces_TypesReturned()
+        {
+            var result = Types.InNamespaces(new List<string>()
+            {
+                "NetArchTest.TestStructure.NameMatching.Namespace1",
+                "NetArchTest.TestStructure.NameMatching.Namespace2.Namespace3"
+            }).GetTypes();
+
+            Assert.Equal(4, result.Count()); // Four types found
+            Assert.Contains<Type>(typeof(ClassA1), result);
+            Assert.Contains<Type>(typeof(ClassA2), result);
             Assert.Contains<Type>(typeof(ClassB1), result);
             Assert.Contains<Type>(typeof(ClassB2), result);
         }

@@ -121,7 +121,17 @@
                 throw new ArgumentNullException(nameof(name));
             }
 
-            // We need to check all the assemblies in the domain
+            return Types.InNamespaces(new List<string> {name});
+        }
+
+
+        public static Types InNamespaces(List<string> names)
+        {
+            if (names == null || names.Count == 0)
+            {
+                throw new ArgumentNullException(nameof(names));
+            }
+
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             var types = new List<TypeDefinition>();
 
@@ -138,9 +148,9 @@
                     {
                         // Read all the types in the assembly 
                         var matches = (assemblyDef.Modules
-                            .SelectMany(t => t.Types)
-                            .Where(t => t.Namespace != null && t.Namespace.StartsWith(name, StringComparison.InvariantCultureIgnoreCase)))
-                            .ToList();
+                                .SelectMany(t => t.Types)
+                                .Where(t => t.Namespace != null && names.Any(n => t.Namespace.StartsWith(n, StringComparison.InvariantCultureIgnoreCase)))
+                            .ToList());
 
                         if (matches.Count > 0)
                         {
@@ -152,6 +162,7 @@
 
             var list = Types.GetAllTypes(types);
             return new Types(list);
+            
         }
 
         /// <summary>
