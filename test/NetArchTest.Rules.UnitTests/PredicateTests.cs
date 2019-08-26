@@ -22,6 +22,7 @@
     using NetArchTest.TestStructure.Mutability;
     using Xunit;
     using NetArchTest.TestStructure.Nullable;
+    using NetArchTest.TestStructure.Dependencies.Examples;
 
     public class PredicateTests
     {
@@ -359,8 +360,37 @@
                 .And()
                 .AreNested().GetTypes();
 
-            Assert.Single(result); // One type found
-            Assert.Contains<Type>(typeof(NestedContainer.NestedClass), result);
+            Assert.Equal(2, result.Count()); // Two types found
+            Assert.Equal("NestedPrivateClass", result.First().Name);
+            Assert.Equal("NestedPublicClass", result.Last().Name);
+        }
+
+        [Fact(DisplayName = "Types can be selected if they are nested and public.")]
+        public void AreNestedPublic_MatchesFound_ClassesSelected()
+        {
+            var result = Types
+            .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
+            .That()
+            .ResideInNamespace("NetArchTest.TestStructure.Nested")
+            .And()
+            .AreNestedPublic().GetTypes();
+
+            Assert.Single(result); // One types found
+            Assert.Equal("NestedPublicClass", result.First().Name);
+        }
+
+        [Fact(DisplayName = "Types can be selected if they are nested and private.")]
+        public void AreNestedPrivate_MatchesFound_ClassesSelected()
+        {
+            var result = Types
+            .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
+            .That()
+            .ResideInNamespace("NetArchTest.TestStructure.Nested")
+            .And()
+            .AreNestedPrivate().GetTypes();
+
+            Assert.Single(result); // One types found
+            Assert.Equal("NestedPrivateClass", result.First().Name);
         }
 
         [Fact(DisplayName = "Types can be selected if they are not nested.")]
@@ -373,10 +403,40 @@
                 .And()
                 .AreNotNested().GetTypes();
 
-            Assert.Equal(2, result.Count()); // Two types found
-            Assert.Contains<Type>(typeof(NotNested), result);
-            Assert.Contains<Type>(typeof(NestedContainer), result);
+            Assert.Equal(3, result.Count()); // Three types found
+            Assert.Equal("NestedPrivate", result.First().Name);
+            Assert.Equal("NestedPublic", result.Skip(1).First().Name);
+            Assert.Equal("NotNested", result.Last().Name);
+        }
 
+        [Fact(DisplayName = "Types can be selected if they are not nested and public.")]
+        public void AreNotNestedPublic_MatchesFound_ClassesSelected()
+        {
+            var result = Types
+                .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
+                .That()
+                .ResideInNamespace("NetArchTest.TestStructure.Nested")
+                .And()
+                .AreNotNestedPublic().GetTypes();
+
+            Assert.Equal(4, result.Count()); // Four types found
+            var match = result.Any(r => r.Name == "NestedPublicClass");
+            Assert.False(match);
+        }
+
+        [Fact(DisplayName = "Types can be selected if they are not nested and private.")]
+        public void AreNotNestedPrivate_MatchesFound_ClassesSelected()
+        {
+            var result = Types
+                .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
+                .That()
+                .ResideInNamespace("NetArchTest.TestStructure.Nested")
+                .And()
+                .AreNotNestedPrivate().GetTypes();
+
+            Assert.Equal(4, result.Count()); // Four types found
+            var match = result.Any(r => r.Name == "NestedPrivateClass");
+            Assert.False(match);
         }
 
         [Fact(DisplayName = "Types can be selected for being declared as public.")]
@@ -584,19 +644,52 @@
             Assert.Contains<Type>(typeof(ClassB2), result);
         }
 
-        [Fact(DisplayName = "Types can be selected if they have a dependency on another type.")]
+        [Fact(DisplayName = "Types can be selected if they have a dependency on a specific item.")]
         public void HaveDepencency_MatchesFound_ClassSelected()
         {
             var result = Types
                 .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
                 .That()
-                .ResideInNamespace("NetArchTest.TestStructure.Dependencies.Implementation")
+                .ResideInNamespace(typeof(HasDependency).Namespace)
                 .And()
-                .HaveDependencyOn("NetArchTest.TestStructure.Dependencies.ExampleDependency")
+                .HaveDependencyOn(typeof(ExampleDependency).FullName)
                 .GetTypes();
 
-            Assert.Single(result); // Only one type found
-            Assert.Equal<Type>(typeof(HasDependency), result.First()); // The correct type found
+            Assert.Equal(2, result.Count()); // Two types found
+            Assert.Equal<Type>(typeof(HasDependencies), result.First());
+            Assert.Equal<Type>(typeof(HasDependency), result.Last());
+        }
+
+        [Fact(DisplayName = "Types can be selected if they have a dependency on any item in a list.")]
+        public void HaveDepencencyOnAny_MatchesFound_ClassSelected()
+        {
+            var result = Types
+                .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
+                .That()
+                .ResideInNamespace(typeof(HasDependency).Namespace)
+                .And()
+                .HaveDependencyOnAny(new[] { typeof(ExampleDependency).FullName, typeof(AnotherExampleDependency).FullName })
+                .GetTypes();
+
+            Assert.Equal(3, result.Count()); // Three types found - i.e. the classes with dependencies on at least one of the items
+            Assert.Equal<Type>(typeof(HasDependencies), result.First());
+            Assert.Equal<Type>(typeof(HasAnotherDependency), result.Skip(1).First());
+            Assert.Equal<Type>(typeof(HasDependency), result.Last());
+        }
+
+        [Fact(DisplayName = "Types can be selected if they have a dependency on all the items in a list.")]
+        public void HaveDepencencyOnAll_MatchesFound_ClassSelected()
+        {
+            var result = Types
+                .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
+                .That()
+                .ResideInNamespace(typeof(HasDependency).Namespace)
+                .And()
+                .HaveDependencyOnAll(new[] { typeof(ExampleDependency).FullName, typeof(AnotherExampleDependency).FullName })
+                .GetTypes();
+
+            Assert.Single(result); // Only one type found - i.e. the class with dependencies on both items
+            Assert.Equal<Type>(typeof(HasDependencies), result.First()); // The correct type found
         }
 
         [Fact(DisplayName = "Types can be selected if they do not have a dependency on another type.")]
@@ -605,14 +698,46 @@
             var result = Types
                 .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
                 .That()
-                .ResideInNamespace("NetArchTest.TestStructure.Dependencies.Implementation")
+                .ResideInNamespace(typeof(HasDependency).Namespace)
                 .And()
-                .DoNotHaveDependencyOn("NetArchTest.TestStructure.Dependencies.ExampleDependency")
+                .DoNotHaveDependencyOn(typeof(ExampleDependency).FullName)
+                .GetTypes();
+
+            Assert.Equal(2, result.Count()); // Two types found
+            Assert.Equal<Type>(typeof(HasAnotherDependency), result.First());
+            Assert.Equal<Type>(typeof(NoDependency), result.Last());
+        }
+
+        [Fact(DisplayName = "Types can be selected if they do not have a dependency on any item in a list.")]
+        public void DoNotHaveDependencyOnAny_MatchesFound_ClassSelected()
+        {
+            var result = Types
+                .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
+                .That()
+                .ResideInNamespace(typeof(HasDependency).Namespace)
+                .And()
+                .DoNotHaveDependencyOnAny(new[] { typeof(ExampleDependency).FullName, typeof(AnotherExampleDependency).FullName })
                 .GetTypes();
 
             Assert.Single(result); // Only one type found
-            Assert.Equal<Type>(typeof(NoDependency), result.First()); // The correct type found
+            Assert.Equal<Type>(typeof(NoDependency), result.First()); // The correct type found - i.e. it's the only type with no matching dependencies at all
         }
 
+        [Fact(DisplayName = "Types can be selected if they do not have a dependency on all the items in a list.")]
+        public void DoNotHaveDependencyOnAll_MatchesFound_ClassSelected()
+        {
+            var result = Types
+                .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
+                .That()
+                .ResideInNamespace(typeof(HasDependency).Namespace)
+                .And()
+                .DoNotHaveDependencyOnAll(new[] { typeof(ExampleDependency).FullName, typeof(AnotherExampleDependency).FullName })
+                .GetTypes();
+
+            Assert.Equal(3, result.Count()); // Three types found - i.e. the classes with dependencies on at least one of the items
+            Assert.Equal<Type>(typeof(HasAnotherDependency), result.First());
+            Assert.Equal<Type>(typeof(HasDependency), result.Skip(1).First());
+            Assert.Equal<Type>(typeof(NoDependency), result.Last());
+        }
     }
 }

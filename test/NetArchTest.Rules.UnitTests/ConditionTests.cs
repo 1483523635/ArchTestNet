@@ -3,10 +3,14 @@
     using System.Linq;
     using System.Reflection;
     using NetArchTest.TestStructure.CustomAttributes;
+    using NetArchTest.TestStructure.Dependencies.Examples;
+    using NetArchTest.TestStructure.Dependencies.Implementation;
     using NetArchTest.TestStructure.Inheritance;
     using NetArchTest.TestStructure.Interfaces;
     using NetArchTest.TestStructure.NameMatching.Namespace1;
+    using NetArchTest.TestStructure.Nested;
     using Xunit;
+    using static NetArchTest.TestStructure.Nested.NestedPublic;
 
     public class ConditionTests
     {
@@ -250,7 +254,7 @@
         }
 
         [Fact(DisplayName = "Types can be selected if they are not classes.")]
-        public void AreNotClasses_MatchesFound_ClassesSelected ()
+        public void AreNotClasses_MatchesFound_ClassesSelected()
         {
             var result = Types
                 .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
@@ -310,7 +314,7 @@
         }
 
         [Fact(DisplayName = "Types can be selected if they are not interfaces.")]
-        public void AreNotInterfaces_MatchesFound_ClassesSelected ()
+        public void AreNotInterfaces_MatchesFound_ClassesSelected()
         {
             var result = Types
                 .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
@@ -327,14 +331,45 @@
         [Fact(DisplayName = "Types can be selected if they are nested.")]
         public void AreNested_MatchesFound_ClassesSelected()
         {
+            // Include both public and private nested classes
             var result = Types
                 .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
                 .That()
                 .ResideInNamespace("NetArchTest.TestStructure.Nested")
                 .And()
-                .HaveName("NestedClass")
+                .HaveNameEndingWith("Class")
                 .Should()
                 .BeNested().GetResult();
+
+            Assert.True(result.IsSuccessful);
+        }
+
+        [Fact(DisplayName = "Types can be selected if they are nested and public.")]
+        public void AreNestedPublic_MatchesFound_ClassesSelected()
+        {
+            var result = Types
+                .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
+                .That()
+                .ResideInNamespace("NetArchTest.TestStructure.Nested")
+                .And()
+                .HaveName(typeof(NestedPublicClass).Name)
+                .Should()
+                .BeNestedPublic().GetResult();
+
+            Assert.True(result.IsSuccessful);
+        }
+
+        [Fact(DisplayName = "Types can be selected if they are nested and private.")]
+        public void AreNestedPrivate_MatchesFound_ClassesSelected()
+        {
+            var result = Types
+                .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
+                .That()
+                .ResideInNamespace("NetArchTest.TestStructure.Nested")
+                .And()
+                .HaveName("NestedPrivateClass")
+                .Should()
+                .BeNestedPrivate().GetResult();
 
             Assert.True(result.IsSuccessful);
         }
@@ -347,9 +382,39 @@
                 .That()
                 .ResideInNamespace("NetArchTest.TestStructure.Nested")
                 .And()
-                .DoNotHaveName("NestedClass")
+                .HaveName(typeof(NotNested).Name)
                 .Should()
                 .NotBeNested().GetResult();
+
+            Assert.True(result.IsSuccessful);
+        }
+
+        [Fact(DisplayName = "Types can be selected if they are not nested and public.")]
+        public void AreNotNestedPublic_MatchesFound_ClassesSelected()
+        {
+            var result = Types
+                .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
+                .That()
+                .ResideInNamespace("NetArchTest.TestStructure.Nested")
+                .And()
+                .HaveNameStartingWith("NestedPrivate")
+                .Should()
+                .NotBeNestedPublic().GetResult();
+
+            Assert.True(result.IsSuccessful);
+        }
+
+        [Fact(DisplayName = "Types can be selected if they are not nested.")]
+        public void AreNotNestedPrivate_MatchesFound_ClassesSelected()
+        {
+            var result = Types
+                .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
+                .That()
+                .ResideInNamespace("NetArchTest.TestStructure.Nested")
+                .And()
+                .HaveNameStartingWith("NestedPublic")
+                .Should()
+                .NotBeNestedPrivate().GetResult();
 
             Assert.True(result.IsSuccessful);
         }
@@ -370,7 +435,7 @@
         }
 
         [Fact(DisplayName = "Types can be selected for not being declared as public.")]
-        public void AreNotPublic_MatchesFound_ClassSelected ()
+        public void AreNotPublic_MatchesFound_ClassSelected()
         {
             var result = Types
                 .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
@@ -457,7 +522,7 @@
                 .DoNotHaveNameStartingWith("NonNullableClass")
                 .Should()
                 .OnlyHaveNullableMembers().GetResult();
-            
+
             Assert.True(result.IsSuccessful);
         }
 
@@ -474,7 +539,7 @@
                 .DoNotHaveNameStartingWith("NullableClass")
                 .Should()
                 .HaveSomeNonNullableMembers().GetResult();
-            
+
             Assert.True(result.IsSuccessful);
         }
 
@@ -545,17 +610,49 @@
             Assert.True(result.IsSuccessful);
         }
 
-        [Fact(DisplayName = "Types can be selected if they have a dependency on another type.")]
+        [Fact(DisplayName = "Types can be selected if they have a dependency on a specific item.")]
         public void HaveDependency_MatchesFound_ClassSelected()
         {
             var result = Types
                 .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
                 .That()
-                .ResideInNamespace("NetArchTest.TestStructure.Dependencies.Implementation")
+                .ResideInNamespace(typeof(HasDependency).Namespace)
                 .And()
-                .HaveNameStartingWith("HasDependency")
+                .HaveNameStartingWith("HasDepend")
                 .Should()
-                .HaveDependencyOn("NetArchTest.TestStructure.Dependencies.ExampleDependency")
+                .HaveDependencyOn(typeof(ExampleDependency).FullName)
+                .GetResult();
+
+            Assert.True(result.IsSuccessful);
+        }
+
+        [Fact(DisplayName = "Types can be selected if they have a dependency on any item in a list.")]
+        public void HaveDependencyOnAny_MatchesFound_ClassSelected()
+        {
+            var result = Types
+                .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
+                .That()
+                .ResideInNamespace(typeof(HasDependency).Namespace)
+                .And()
+                .HaveNameStartingWith("Has")
+                .Should()
+                .HaveDependencyOnAny(new[] { typeof(ExampleDependency).FullName, typeof(AnotherExampleDependency).FullName })
+                .GetResult();
+
+            Assert.True(result.IsSuccessful);
+        }
+
+        [Fact(DisplayName = "Types can be selected if they have a dependency on all the items in a list.")]
+        public void HaveDependencyOnAll_MatchesFound_ClassSelected()
+        {
+            var result = Types
+                .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
+                .That()
+                .ResideInNamespace(typeof(HasDependency).Namespace)
+                .And()
+                .HaveNameStartingWith("HasDependencies")
+                .Should()
+                .HaveDependencyOnAll(new[] { typeof(ExampleDependency).FullName, typeof(AnotherExampleDependency).FullName })
                 .GetResult();
 
             Assert.True(result.IsSuccessful);
@@ -567,11 +664,43 @@
             var result = Types
                 .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
                 .That()
-                .ResideInNamespace("NetArchTest.TestStructure.Dependencies.Implementation")
+                .ResideInNamespace(typeof(HasDependency).Namespace)
                 .And()
                 .HaveNameStartingWith("NoDependency")
                 .Should()
-                .NotHaveDependencyOn("NetArchTest.TestStructure.Dependencies.ExampleDependency")
+                .NotHaveDependencyOn(typeof(ExampleDependency).FullName)
+                .GetResult();
+
+            Assert.True(result.IsSuccessful);
+        }
+
+        [Fact(DisplayName = "Types can be selected if they do not have a dependency on any item in a list.")]
+        public void NotHaveDependencyOnAny_MatchesFound_ClassSelected()
+        {
+            var result = Types
+                .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
+                .That()
+                .ResideInNamespace(typeof(HasDependency).Namespace)
+                .And()
+                .HaveNameStartingWith("NoDependency")
+                .Should()
+                .NotHaveDependencyOnAny(new[] { typeof(ExampleDependency).FullName, typeof(AnotherExampleDependency).FullName })
+                .GetResult();
+
+            Assert.True(result.IsSuccessful);
+        }
+
+        [Fact(DisplayName = "Types can be selected if they do not have a dependency on all the items in a list.")]
+        public void NotHaveDependencyOnAll_MatchesFound_ClassSelected()
+        {
+            var result = Types
+                .InAssembly(Assembly.GetAssembly(typeof(ClassA1)))
+                .That()
+                .ResideInNamespace(typeof(HasDependency).Namespace)
+                .And()
+                .HaveNameStartingWith("NoDependency")
+                .Should()
+                .NotHaveDependencyOnAll(new[] { typeof(ExampleDependency).FullName, typeof(AnotherExampleDependency).FullName })
                 .GetResult();
 
             Assert.True(result.IsSuccessful);

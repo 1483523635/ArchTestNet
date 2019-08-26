@@ -195,6 +195,33 @@
             }
         };
 
+        /// <summary> Function for finding nested public classes. </summary>
+        internal static FunctionDelegate<bool> BeNestedPublic = delegate (IEnumerable<TypeDefinition> input, bool dummy, bool condition)
+        {
+            if (condition)
+            {
+                return input.Where(c => c.IsNestedPublic);
+            }
+            else
+            {
+                return input.Where(c => !c.IsNestedPublic);
+            }
+        };
+
+        /// <summary> Function for finding nested private classes. </summary>
+        internal static FunctionDelegate<bool> BeNestedPrivate = delegate (IEnumerable<TypeDefinition> input, bool dummy, bool condition)
+        {
+            if (condition)
+            {
+                return input.Where(c => c.IsNestedPrivate);
+            }
+            else
+            {
+                return input.Where(c => !c.IsNestedPrivate);
+            }
+        };
+
+
         /// <summary> Function for finding public classes. </summary>
         internal static FunctionDelegate<bool> BePublic = delegate (IEnumerable<TypeDefinition> input, bool dummy, bool condition)
         {
@@ -274,12 +301,12 @@
             }
         };
 
-        /// <summary> Function for finding types that have a dependency on a specific type. </summary>
-        internal static FunctionDelegate<IEnumerable<string>> HaveDependencyOn = delegate (IEnumerable<TypeDefinition> input, IEnumerable<string> dependencies, bool condition)
+        /// <summary> Function for finding types that have a dependency on any of the supplied types. </summary>
+        internal static FunctionDelegate<IEnumerable<string>> HaveDependencyOnAny = delegate (IEnumerable<TypeDefinition> input, IEnumerable<string> dependencies, bool condition)
         {
             // Get the types that contain the dependencies
             var search = new DependencySearch();
-            var results = search.FindTypesWithDependencies(input, dependencies);
+            var results = search.FindTypesWithAnyDependencies(input, dependencies);
 
             if (condition)
             {
@@ -290,5 +317,23 @@
                 return input.Where(t => !results.Contains(t));
             }
         };
+
+        /// <summary> Function for finding types that have a dependency on all of the supplied types. </summary>
+        internal static FunctionDelegate<IEnumerable<string>> HaveDependencyOnAll = delegate (IEnumerable<TypeDefinition> input, IEnumerable<string> dependencies, bool condition)
+        {
+            // Get the types that contain the dependencies
+            var search = new DependencySearch();
+            var results = search.FindTypesWithAllDependencies(input, dependencies);
+
+            if (condition)
+            {
+                return results;
+            }
+            else
+            {
+                return input.Where(t => !results.Contains(t));
+            }
+        };
+
     }
 }

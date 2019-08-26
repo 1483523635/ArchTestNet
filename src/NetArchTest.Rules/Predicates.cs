@@ -280,6 +280,26 @@
         }
 
         /// <summary>
+        /// Selects types that are nested and declared as public.
+        /// </summary>
+        /// <returns>An updated set of predicates that can be applied to a list of types.</returns>
+        public PredicateList AreNestedPublic()
+        {
+            _sequence.AddFunctionCall(FunctionDelegates.BeNestedPublic, true, true);
+            return new PredicateList(_types, _sequence);
+        }
+
+        /// <summary>
+        /// Selects types that are nested and declared as private.
+        /// </summary>
+        /// <returns>An updated set of predicates that can be applied to a list of types.</returns>
+        public PredicateList AreNestedPrivate()
+        {
+            _sequence.AddFunctionCall(FunctionDelegates.BeNestedPrivate, true, true);
+            return new PredicateList(_types, _sequence);
+        }
+
+        /// <summary>
         /// Selects types that are not nested.
         /// </summary>
         /// <returns>An updated set of predicates that can be applied to a list of types.</returns>
@@ -288,6 +308,29 @@
             _sequence.AddFunctionCall(FunctionDelegates.BeNested, true, false);
             return new PredicateList(_types, _sequence);
         }
+
+        /// <summary>
+        /// Selects types that are not nested and declared as public.
+        /// </summary>
+        /// <returns>An updated set of predicates that can be applied to a list of types.</returns>
+        /// <remarks>NB: This method will return non-nested types and nested types that are declared as private.</remarks>
+        public PredicateList AreNotNestedPublic()
+        {
+            _sequence.AddFunctionCall(FunctionDelegates.BeNestedPublic, true, false);
+            return new PredicateList(_types, _sequence);
+        }
+
+        /// <summary>
+        /// Selects types that are not nested and declared as private.
+        /// </summary>
+        /// <returns>An updated set of predicates that can be applied to a list of types.</returns>
+        /// <remarks>NB: This method will return non-nested types and nested types that are declared as public.</remarks>
+        public PredicateList AreNotNestedPrivate()
+        {
+            _sequence.AddFunctionCall(FunctionDelegates.BeNestedPrivate, true, false);
+            return new PredicateList(_types, _sequence);
+        }
+
 
         /// <summary>
         /// Selects types that have public scope.
@@ -422,22 +465,66 @@
         /// <summary>
         /// Selects types that have a dependency on a particular type.
         /// </summary>
-        /// <param name="dependency">The dependency type to match against.</param>
+        /// <param name="dependency">The dependency type to match against. This can be a namespace or a specific type.</param>
         /// <returns>An updated set of predicates that can be applied to a list of types.</returns>
         public PredicateList HaveDependencyOn(string dependency)
         {
-            _sequence.AddFunctionCall(FunctionDelegates.HaveDependencyOn, new List<string> { dependency }, true);
+            _sequence.AddFunctionCall(FunctionDelegates.HaveDependencyOnAny, new List<string> { dependency }, true);
+            return new PredicateList(_types, _sequence);
+        }
+
+        /// <summary>
+        /// Selects types that have a dependency on any of the supplied types.
+        /// </summary>
+        /// <param name="dependencies">The dependencies to match against. These can be namespaces or specific types.</param>
+        /// <returns>An updated set of conditions that can be applied to a list of types.</returns>
+        public PredicateList HaveDependencyOnAny(string[] dependencies)
+        {
+            _sequence.AddFunctionCall(FunctionDelegates.HaveDependencyOnAny, dependencies, true);
+            return new PredicateList(_types, _sequence);
+        }
+
+        /// <summary>
+        /// Selects types that have a dependency on all of the particular types.
+        /// </summary>
+        /// <param name="dependencies">The dependencies to match against. These can be namespaces or specific types.</param>
+        /// <returns>An updated set of conditions that can be applied to a list of types.</returns>
+        public PredicateList HaveDependencyOnAll(string[] dependencies)
+        {
+            _sequence.AddFunctionCall(FunctionDelegates.HaveDependencyOnAll, dependencies, true);
             return new PredicateList(_types, _sequence);
         }
 
         /// <summary>
         /// Selects types that do not have a dependency on a particular type.
         /// </summary>
-        /// <param name="dependency">The dependency type to match against.</param>
+        /// <param name="dependency">The dependency type to match against. This can be a namespace or a specific type.</param>
         /// <returns>An updated set of predicates that can be applied to a list of types.</returns>
         public PredicateList DoNotHaveDependencyOn(string dependency)
         {
-            _sequence.AddFunctionCall(FunctionDelegates.HaveDependencyOn, new List<string> { dependency }, false);
+            _sequence.AddFunctionCall(FunctionDelegates.HaveDependencyOnAny, new List<string> { dependency }, false);
+            return new PredicateList(_types, _sequence);
+        }
+
+        /// <summary>
+        /// Selects types that do not have a dependency on any of the particular types.
+        /// </summary>
+        /// <param name="dependencies">The dependencies to match against. These can be namespaces or specific types.</param>
+        /// <returns>An updated set of conditions that can be applied to a list of types.</returns>
+        public PredicateList DoNotHaveDependencyOnAny(string[] dependencies)
+        {
+            _sequence.AddFunctionCall(FunctionDelegates.HaveDependencyOnAny, dependencies, false);
+            return new PredicateList(_types, _sequence);
+        }
+
+        /// <summary>
+        /// Selects types that do not have a dependency on all of the particular types.
+        /// </summary>
+        /// <param name="dependencies">The dependencies to match against. These can be namespaces or specific types.</param>
+        /// <returns>An updated set of conditions that can be applied to a list of types.</returns>
+        public PredicateList DoNotHaveDependencyOnAll(string[] dependencies)
+        {
+            _sequence.AddFunctionCall(FunctionDelegates.HaveDependencyOnAll, dependencies, false);
             return new PredicateList(_types, _sequence);
         }
     }
