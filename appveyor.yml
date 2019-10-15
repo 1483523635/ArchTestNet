@@ -1,0 +1,14 @@
+image: Visual Studio 2015
+
+before_build:
+- nuget restore
+- choco install opencover.portable
+- choco install codecov
+
+build:
+  project: NetArchTest.sln
+  verbosity: minimal
+
+test_script:
+- OpenCover.Console.exe -register:user -target:"%xunit20%\xunit.console.x86.exe" -targetargs:".\MyUnitTests\bin\Debug\MyUnitTests.dll -noshadow" -filter:"+[UnitTestTargetProject*]* -[MyUnitTests*]*" -output:".\MyProject_coverage.xml"
+- codecov -f "MyProject_coverage.xml" -t 1e9eb13f-3711-4be1-b4ad-1f03992a54f6
