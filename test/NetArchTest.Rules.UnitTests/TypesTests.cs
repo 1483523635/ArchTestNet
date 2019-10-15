@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace NetArchTest.Rules.UnitTests
+﻿namespace NetArchTest.Rules.UnitTests
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Reflection;
