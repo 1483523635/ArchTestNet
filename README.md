@@ -9,7 +9,7 @@ Mainly change is:
 
 Travis:  [![Build status](https://travis-ci.org/1483523635/ArchTestNet.svg?branch=master)](https://travis-ci.org/1483523635/ArchTestNet)
 
-Nuget source: [![Nuget source](https://img.shields.io/badge/ArchTestNet-V0.3.0-blue)](https://www.nuget.org/packages/ArchTestNet/)
+Nuget source: [![Nuget source](https://img.shields.io/badge/ArchTestNet-V0.4.0-blue)](https://www.nuget.org/packages/ArchTestNet/)
 
 
 
